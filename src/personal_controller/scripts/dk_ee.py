@@ -97,7 +97,7 @@ def jointCallBack(msg: JointState):
 
 
 def save_trajectory():
-    with open("/home/vandalsnike/Results/trajectory_done.csv", "w", newline="") as file:
+    with open("/home/vandalsnike/catkin_ws7/Results/trajectory_done.csv", "w", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(['Time', 'x', 'y', 'z','q_x','q_y','q_z','q_w']) 
         writer.writerows(trajectory)  

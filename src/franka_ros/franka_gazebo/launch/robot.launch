@@ -123,7 +123,7 @@
 <node pkg="rosbag" type="record" name="rosbag_record_joint_states"
         output="screen"
         launch-prefix="bash -c 'sleep 4; $0 $@'"
-        args="-o /home/vandalsnike/Results/joint_states_record /joint_states" />
+        args="-o /home/vandalsnike/catkin_ws7/Results/JointData/joint_states_record /joint_states" />
 
 
 </launch>

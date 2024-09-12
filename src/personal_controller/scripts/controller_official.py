@@ -79,7 +79,7 @@ if __name__ == '__main__':
      pass
     finally:
         
-        with open("/home/vandalsnike/Results/trajectory.csv", mode='w', newline='') as file:
+        with open("/home/vandalsnike/catkin_ws7/Results/trajectory.csv", mode='w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(['Time', 'x', 'y', 'z','q_x','q_y','q_z','q_w']) 
             writer.writerows(trajectory)
