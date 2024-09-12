@@ -34,7 +34,7 @@ if __name__ == '__main__':
             x = center[0]+scale*np.sin(omega*current_time)+2*scale*np.sin(2*omega*current_time)
             y = center[1]
             z = center[2]+scale*np.cos(omega*current_time)-2*scale*np.cos(2*omega*current_time)
-            # Rotation function
+            # Rotation function added
             yaw = (np.pi / 2  )* np.sin(omega_rot * current_time)#**2 * np.sign(np.sin(omega * current_time))
              
             rotation = R.from_euler('xyz', [np.pi, 0, yaw], degrees=False) 
