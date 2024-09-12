@@ -1,0 +1,8 @@
+prefix=/home/vandalsnike/catkin_ws7/devel
+
+Name: personal_controller
+Description: Description of personal_controller
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

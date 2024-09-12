@@ -1,0 +1,14 @@
+<launch>
+<node name="dk_ee" 
+     pkg="personal_controller" 
+     type="dk_ee.py" 
+     output="screen"
+     respawn="false"
+     cwd="node"/>
+<node name="controller" 
+     pkg="personal_controller" 
+     type="controller.py" 
+     output="screen"
+     respawn="false"
+     cwd="node"/>
+</launch>
