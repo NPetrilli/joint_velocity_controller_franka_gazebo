@@ -48,7 +48,6 @@ class JointVelocityExampleController : public controller_interface::MultiInterfa
   void trajectoryPoseCallback(const geometry_msgs::PoseStampedConstPtr& msg);
 
   ros::Publisher target_publisher;
-  void publisherFunction();
 };
 
 }  // namespace franka_example_controllers
