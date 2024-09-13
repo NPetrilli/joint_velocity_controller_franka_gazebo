@@ -27,7 +27,7 @@ if __name__ == '__main__':
 
             scale = 0.05
             omega = 0.2
-            omega_rot=0.5
+            omega_rot=0.4
             center = np.array([0.45, 0.0, 0.50])
 
             
@@ -35,13 +35,13 @@ if __name__ == '__main__':
             y = center[1]
             z = center[2]+scale*np.cos(omega*current_time)-2*scale*np.cos(2*omega*current_time)
             # Rotation function added
-            yaw = (np.pi / 2  )* np.sin(omega_rot * current_time)#**2 * np.sign(np.sin(omega * current_time))
+            yaw = (np.pi /2)* np.sin(omega_rot * current_time+math.pi/2)#**2 * np.sign(np.sin(omega * current_time))
              
             rotation = R.from_euler('xyz', [np.pi, 0, yaw], degrees=False) 
             quat = rotation.as_quat()  # [x, y, z, w]
 
             theta = omega * current_time
-            # ZYX (RPY) (0 0 180) respect to x
+            # XYZ (RPY) (180 0 0) respect to x
             q_x = quat[0]
             q_y = quat[1]
             q_z = quat[2]
@@ -77,12 +77,11 @@ if __name__ == '__main__':
             rate.sleep()
     except rospy.ROSInterruptException:
      pass
-    finally:
-        
-        with open("/home/vandalsnike/catkin_ws7/Results/trajectory.csv", mode='w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(['Time', 'x', 'y', 'z','q_x','q_y','q_z','q_w']) 
-            writer.writerows(trajectory)
-        rospy.loginfo("Traiettoria salvata su trajectory.csv")
+    finally:   
+     with open("/home/vandalsnike/catkin_ws7/Results/trajectory.csv", mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['Time', 'x', 'y', 'z','q_x','q_y','q_z','q_w']) 
+        writer.writerows(trajectory)
+     rospy.loginfo("Traiettoria salvata su trajectory.csv")
 
  

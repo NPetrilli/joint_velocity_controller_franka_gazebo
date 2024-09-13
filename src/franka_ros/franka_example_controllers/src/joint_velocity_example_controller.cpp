@@ -133,23 +133,23 @@ void JointVelocityExampleController::starting(const ros::Time& /* time */) {
 }
 
 Eigen::Matrix<double, 3, 1> computePoseError(const Eigen::Affine3d& T, const Eigen::Affine3d& Td) {
+  //PC's function
   Eigen::Matrix<double, 3, 1> e;
-
-
   Eigen::Matrix3d R = Td.rotation() * T.rotation().transpose();
+ 
   Eigen::Vector3d li;
   li << R(2, 1) - R(1, 2), R(0, 2) - R(2, 0), R(1, 0) - R(0, 1);
 
   if (li.norm() < 1e-6) {
-    // Caso diagonale: nessuna rotazione
+    //Diagonal case: no rotation
     if (R.trace() > 0) {
       e.tail(3).setZero();
     } else {
-      // Caso speciale: rotazione di pi greco
+    //Special case: PI rotation
       e.tail(3) = M_PI / 2 * (R.diagonal().array() + 1).matrix();
     }
   } else {
-    // Caso non diagonale: calcolo dell'errore in angolo-asse
+    //NO diagonal case, computing axis-angle
     double ln = li.norm();
     e.tail(3) = atan2(ln, R.trace() - 1) * li / ln;
   }
@@ -159,21 +159,28 @@ Eigen::Matrix<double, 3, 1> computePoseError(const Eigen::Affine3d& T, const Eig
 
 void JointVelocityExampleController::update(const ros::Time& time, const ros::Duration& period) {
   
+  //Taking robot model and state and jacobian matrix
   franka::RobotState robot_state = state_handle_->getRobotState();
   std::array<double, 42> jacobian_array = model_handle_->getZeroJacobian(franka::Frame::kEndEffector);
   Eigen::Map<Eigen::Matrix<double, 6, 7>> jacobian(jacobian_array.data());
 
+  //Obtaining EE pose (traslation+rotation)
   Eigen::Affine3d transform(Eigen::Matrix4d::Map(robot_state.O_T_EE.data()));
   Eigen::Vector3d position(transform.translation());
   Eigen::Quaterniond orientation(transform.rotation());
   Eigen::Map<Eigen::Matrix<double, 7, 1>> dq(robot_state.dq.data());
 
+  //Computing pinv of jacobian
   Eigen::MatrixXd jacobian_pinv;
   pseudoInverse(jacobian, jacobian_pinv);
 
+  //----------------------ERROR--------------------------------------------
+
+  //Error position
   Eigen::Matrix<double, 6, 1> error;
   error.head(3) << position_d_ - position;
   
+  //Error orientation
   Eigen::Affine3d Te;
   Te.translation() = position_d_target_;
   Te.linear() = orientation_d_target_.toRotationMatrix();
@@ -181,27 +188,32 @@ void JointVelocityExampleController::update(const ros::Time& time, const ros::Du
   Eigen::Matrix<double, 3, 1> error_rot = computePoseError(transform, Te);
   error.tail(3)=error_rot;
 
-
+  //----------------------VELOCITY------------------------------------------
+  //Velocity position
   Eigen::Matrix<double, 6, 1> xd_dot;
   xd_dot.head(3) = (position_d_target_ - position_d_) / period.toSec();
 
+  //Velocity orientation
   Eigen::Matrix3d rot_orientation_d_ = orientation_d_.toRotationMatrix();
   Eigen::Matrix3d rot_orientation_d_target_ = orientation_d_target_.toRotationMatrix();
 
-  Eigen::Vector3d euler_ang_orientation_d_ = rot_orientation_d_.eulerAngles(0, 1, 2);
-  Eigen::Vector3d euler_ang_orientation_d_target_= rot_orientation_d_target_.eulerAngles(0, 1, 2);
+  Eigen::Vector3d euler_ang_d_ = rot_orientation_d_.eulerAngles(0, 1, 2);  //XYZ
+  Eigen::Vector3d euler_ang_d_target_= rot_orientation_d_target_.eulerAngles(0, 1, 2);
 
-  xd_dot.tail(3) = ( euler_ang_orientation_d_target_ - euler_ang_orientation_d_ ) / period.toSec();
+  xd_dot.tail(3) = ( euler_ang_d_target_ - euler_ang_d_ ) / period.toSec();
 
   //xd_dot.tail(3).setZero();
   
+
+  //----------------------TUNING---------------------------------------------
   Eigen::Matrix<double, 6, 6> K;
   K.setIdentity();
-  K.diagonal() << 45, 50, 45, 30, 25, 25;
+  K.diagonal() << 80, 70, 80, 30, 30, 40;
 
+
+  //------------------Differential Kinematics equation-----------------------
   Eigen::Matrix<double, 7, 1> q_dot;
-  q_dot = jacobian_pinv * (xd_dot + K * error); //+(Eigen::MatrixXd::Identity(7, 7)-jacobian_pinv*jacobian)*dq;
-
+  q_dot = jacobian_pinv * (xd_dot + K * error);//+(Eigen::MatrixXd::Identity(7, 7)-jacobian_pinv*jacobian)*dq;
 
   position_d_ = position_d_target_;
   orientation_d_ = orientation_d_target_;
@@ -209,6 +221,8 @@ void JointVelocityExampleController::update(const ros::Time& time, const ros::Du
   for (size_t i = 0; i < 7; i++) {
     velocity_joint_handles_[i].setCommand(q_dot[i]);
   }
+
+
 
   // Debug
   // ROS_INFO_STREAM("Position_d_target_: " << position_d_target_.transpose());

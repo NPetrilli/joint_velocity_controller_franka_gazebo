@@ -1,8 +1,6 @@
 close all
 clear all
 
-
-
 fileList = dir("/home/vandalsnike/catkin_ws7/Results/JointData");
 fileList = fileList(~[fileList.isdir]);
 [~, idx] = max([fileList.datenum]);
