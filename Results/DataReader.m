@@ -11,20 +11,27 @@ bag=rosbag(fileList(idx).name);
 
 figure(1)
 sgtitle("Components Over Time")
-subplot(3,3,[1 2 3])
-plot(M(:,1),M(:,2),'r','LineWidth',1.2)
+subplot(4,3,[1 2 3])
+plot(M(:,1),M(:,2),'r','LineWidth',1.4)
 hold on
-plot(M2(:,1),M2(:,2),'b-.','LineWidth',1.2)
+plot(M2(:,1),M2(:,2),'b-.','LineWidth',1.4)
 legend('Required','Executed')
 xlabel("Time (s)")
 ylabel("X (m)")
-subplot(3,3,[4 5 6])
-plot(M(:,1),M(:,4),'r','LineWidth',1.2)
+subplot(4,3,[4 5 6])
+plot(M(:,1),M(:,4),'r','LineWidth',1.4)
 hold on
-plot(M2(:,1),M2(:,4),'b-.','LineWidth',1.2)
+plot(M2(:,1),M2(:,4),'b-.','LineWidth',1.4)
 legend('Required','Executed')
 xlabel("Time (s)")
 ylabel("Z (m)")
+subplot(4,3,[7 8 9])
+plot(M(:,1),M(:,3),'r','LineWidth',1.4)
+hold on
+plot(M2(:,1),M2(:,3),'b-.','LineWidth',1.4)
+legend('Required','Executed')
+xlabel("Time (s)")
+ylabel("Y (m)")
 
 quat_req = [M(:,8), M(:,5:7)];  
 quat_exe = [M2(:,8), M2(:,5:7)];  
@@ -42,34 +49,34 @@ for i = 1:size(M2(:, 5:8), 1)
     euler_exe(i, :) = rad2deg(quat2eul(q2,'XYZ'));
 end
 
-subplot(3,3,7);
-plot(M(:, 1),  euler_req(:, 1), 'b', 'DisplayName', 'Required','LineWidth',1.2); 
+subplot(4,3,10);
+plot(M(:, 1),  euler_req(:, 1), 'b', 'DisplayName', 'Required','LineWidth',1.4); 
 hold on;
-plot(M2(:, 1), abs(euler_exe(:, 1)), 'r--', 'DisplayName', 'Executed','LineWidth',1);
+plot(M2(:, 1), abs(euler_exe(:, 1)), 'r--', 'DisplayName', 'Executed','LineWidth',1.2);
 title('Roll over time');
 xlabel('Time (s)'); 
 ylabel('Roll (degree)');
-legend('show');
+legend('show', 'Location', 'southeast');
 grid on;
 
-subplot(3,3,8);
-plot(M(:, 1), euler_req(:, 2), 'b', 'DisplayName', 'Required','LineWidth',1.2); 
+subplot(4,3,11);
+plot(M(:, 1), euler_req(:, 2), 'b', 'DisplayName', 'Required','LineWidth',1.4); 
 hold on;
-plot(M2(:, 1),euler_exe(:, 2), 'r--', 'DisplayName', 'Executed','LineWidth',1);
+plot(M2(:, 1),euler_exe(:, 2), 'r--', 'DisplayName', 'Executed','LineWidth',1.2);
 title('Pitch over time');
 xlabel('Time (s)'); 
 ylabel('Pitch (degree)');
-legend('show');
+legend('show', 'Location', 'southeast');
 grid on;
 
-subplot(3,3,9);
-plot(M(:, 1), euler_req(:, 3), 'b', 'DisplayName', 'Required','LineWidth',1.2); 
+subplot(4,3,12);
+plot(M(:, 1), euler_req(:, 3), 'b', 'DisplayName', 'Required','LineWidth',1.4); 
 hold on;
-plot(M2(:, 1), euler_exe(:, 3), 'r--', 'DisplayName', 'Executed','LineWidth',1);
+plot(M2(:, 1), euler_exe(:, 3), 'r--', 'DisplayName', 'Executed','LineWidth',1.2);
 title('Yaw over time');
 xlabel('Time (s)'); 
 ylabel('Yaw (degree)');
-legend('show');
+legend('show', 'Location', 'southeast');
 grid on;
 
 
@@ -94,16 +101,16 @@ ylabel("Z (m)")
 
 msgs = readMessages(bag);
 
-joints_velocities=[];
-joints_positions=[];
+joints_velocities=zeros(size(msgs,1),8);
+joints_positions=zeros(size(msgs,1),8);
 
 for i=1:length(msgs)
     time=bag.MessageList{i,1};
     positions=msgs{i,1}.Position(1:7);
     velocities=msgs{i,1}.Velocity(1:7);
 
-    joints_positions=[joints_positions; [time positions']];
-    joints_velocities=[joints_velocities;[time velocities']];
+    joints_positions(i,:)=[time positions'];
+    joints_velocities(i,:)=[time velocities'];
 
 end
 
@@ -123,5 +130,8 @@ title("Joint velocity (smoothed)")
 legend('joint1','joint2','joint3','joint4','joint5','joint6','joint7')
 xlabel('Time (s)')
 
-
+figure
+plot3(M(:,2),M(:,3),M(:,4),'r')
+hold on
+plot3(M2(:,2),M2(:,3),M2(:,4),'b--')
 

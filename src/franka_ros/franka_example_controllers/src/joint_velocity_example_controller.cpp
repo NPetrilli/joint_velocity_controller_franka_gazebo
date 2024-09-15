@@ -208,7 +208,7 @@ void JointVelocityExampleController::update(const ros::Time& time, const ros::Du
   //----------------------TUNING---------------------------------------------
   Eigen::Matrix<double, 6, 6> K;
   K.setIdentity();
-  K.diagonal() << 80, 70, 80, 30, 30, 40;
+  K.diagonal() << 130, 130, 130, 100, 100, 100;
 
 
   //------------------Differential Kinematics equation-----------------------
