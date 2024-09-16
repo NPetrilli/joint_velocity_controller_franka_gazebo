@@ -24,31 +24,34 @@ if __name__ == '__main__':
         rospy.sleep(1)
         while not rospy.is_shutdown():
             current_time = (rospy.Time.now() - start_time).to_sec()-7
-
+            
+            # Trajecotory parameters
             scale = 0.05
             omega = 0.2
             omega_rot=0.4
             center = np.array([0.45, 0.0, 0.50])
 
-            
+            # Trajectory equations
             x = center[0]+scale*np.sin(omega*current_time)+2*scale*np.sin(2*omega*current_time)
             y = center[1]
             z = center[2]+scale*np.cos(omega*current_time)-2*scale*np.cos(2*omega*current_time)
-            # Rotation function added
+            
+            # Trajectory orientation
             yaw = (np.pi /2)* np.sin(omega_rot * current_time+math.pi/2)
             rotation = R.from_euler('xyz', [np.pi, 0, yaw], degrees=False) 
-            quat = rotation.as_quat()  # [x, y, z, w]
+            quat = rotation.as_quat()  # [x, y, z, w]:default
 
             theta = omega * current_time
-            # XYZ (RPY) (180 0 0) respect to x
+            # XYZ (RPY) (180 0 yaw) respect to x
             q_x = quat[0]
             q_y = quat[1]
             q_z = quat[2]
             q_w = quat[3]
             
-
+            # Saving trajectory
             trajectory.append([current_time+7,x,y,z,q_x, q_y, q_z, q_w])
 
+            # Preparing message
             pose_msg = PoseStamped()
             pose_msg.header.stamp = rospy.Time.now()
             pose_msg.header.frame_id = "world"

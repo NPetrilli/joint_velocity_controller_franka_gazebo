@@ -1,5 +1,3 @@
-
-
 // Copyright (c) 2023 Franka Robotics GmbH
 // Use of this source code is governed by the Apache-2.0 license, see LICENSE
 #include <franka_example_controllers/joint_velocity_example_controller.h>
@@ -227,8 +225,8 @@ void JointVelocityExampleController::update(const ros::Time& time, const ros::Du
   // Debug
   // ROS_INFO_STREAM("Position_d_target_: " << position_d_target_.transpose());
   // ROS_INFO_STREAM("Position: " << position.transpose());
-  //ROS_INFO_STREAM("Error: " << error.tail(3).transpose());
-  //ROS_INFO_STREAM("x_dot: " << xd_dot.transpose());
+  // ROS_INFO_STREAM("Error: " << error.tail(3).transpose());
+  // ROS_INFO_STREAM("x_dot: " << xd_dot.transpose());
 }
 
 

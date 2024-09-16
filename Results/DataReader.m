@@ -1,14 +1,17 @@
 close all
 clear all
 
+% Taking last file from joint_data folder
 fileList = dir("/home/vandalsnike/catkin_ws7/Results/JointData");
 fileList = fileList(~[fileList.isdir]);
 [~, idx] = max([fileList.datenum]);
 
+% Reading data
 M = readmatrix('trajectory.csv');
 M2 = readmatrix('trajectory_done.csv');
 bag=rosbag(fileList(idx).name);
 
+% Component over time
 figure(1)
 sgtitle("Components Over Time")
 subplot(4,3,[1 2 3])
@@ -82,7 +85,7 @@ grid on;
 
 
 
-
+% Trajectory on XZ plane
 figure(2)
 plot(M(:,2),M(:,4),'r','LineWidth',1.4)
 axis equal
@@ -98,7 +101,7 @@ ylabel("Z (m)")
 
 
 
-
+% Reading message from .bag file
 msgs = readMessages(bag);
 
 joints_velocities=zeros(size(msgs,1),8);
@@ -114,8 +117,8 @@ for i=1:length(msgs)
 
 end
 
-smoothed_velocities = movmean(joints_velocities(:,2:end), 200);
 
+% Joint data over time
 figure(3)
 subplot(2,1,1)
 plot(joints_positions(:,1), joints_positions(:,2:end), 'LineWidth', 1.3)
@@ -123,13 +126,15 @@ title("Joint position")
 legend('joint1','joint2','joint3','joint4','joint5','joint6','joint7')
 xlabel('Time (s)')
 hold on
-
+smoothed_velocities = movmean(joints_velocities(:,2:end), 200);
 subplot(2,1,2)
 plot(joints_velocities(:,1), smoothed_velocities, 'LineWidth', 1.3)  
 title("Joint velocity (smoothed)")
 legend('joint1','joint2','joint3','joint4','joint5','joint6','joint7')
 xlabel('Time (s)')
 
+
+% Trajectory on 3D space
 figure
 plot3(M(:,2),M(:,3),M(:,4),'r')
 hold on
